@@ -813,14 +813,19 @@ DELIMITER ;
 
 
 
-
+select @sql_query;
 select Nome
  from Tabella_Esercizio;
 drop procedure InserisciRigaTabellaEsercizio;
 DELIMITER //
-CALL InserisciRigaTabellaEsercizio('{"colonna1": "valore1", "colonna2": "valore2"}', 'Nazionale ');
-call InserisciRigaTabellaEsercizio('{"Nome": "valore1", "eta": "valore2"}','Stato');
+CALL InserisciRigaTabellaEsercizio('{"logger 2 ": "valore1", "Logger 1": "valore2"}', 'Prova logger');
+call InserisciRigaTabellaEsercizio('{"Nome": "carlos", "eta": "22"}','Persona');
 SELECT @sql_query;
+
+
+
+
+
 
 DELIMITER //
 
@@ -831,60 +836,75 @@ CREATE PROCEDURE InserisciRigaTabellaEsercizio(
 BEGIN
     DECLARE col_names TEXT DEFAULT '';
     DECLARE col_values TEXT DEFAULT '';
-    DECLARE key_name VARCHAR(255);
+    DECLARE attr_name VARCHAR(100);
     DECLARE value_text VARCHAR(255);
+    DECLARE table_exists INT DEFAULT 0;
     DECLARE idx INT DEFAULT 0;
 
-      select  nomeTabella
-      from Tabella_Esercizio;
-    if( select  count(*) from Tabella_Esercizio where Nome=nomeTabella)=0 then
-    SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'La tabella specificata non esiste';
-    ELSE
-    -- Ottieni il numero di chiavi nel JSON
-    SET @num_keys = JSON_LENGTH(inputRiga);
+    -- Cursore per iterare sugli attributi JSON
+    DECLARE done INT DEFAULT 0;
+    DECLARE cur CURSOR FOR
+        SELECT JSON_UNQUOTE(JSON_KEYS(inputRiga, idx)) AS attr_name,
+               JSON_UNQUOTE(JSON_EXTRACT(inputRiga, CONCAT('$."', JSON_UNQUOTE(JSON_KEYS(inputRiga, idx)), '"'))) AS value_text
+        FROM Tabella_Esercizio;
 
+    DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = 1;
 
-    -- Ciclo per ogni chiave nel JSON
-    WHILE idx < @num_keys DO
-            -- Estrai il nome della chiave e il valore corrispondente
-            SET key_name = JSON_UNQUOTE(JSON_EXTRACT(JSON_KEYS(inputRiga), CONCAT('$[', idx, ']')));
-            SET value_text = JSON_UNQUOTE(JSON_EXTRACT(inputRiga, CONCAT('$."', key_name, '"')));
+    -- Rimuovi spazi extra nel nome della tabella
+    SET nomeTabella = TRIM(nomeTabella);
 
-            -- Aggiungi la chiave e il valore alle rispettive stringhe
-            IF idx = 0 THEN
-                SET col_names = CONCAT('`', key_name, '`');
-                SET col_values = CONCAT(QUOTE(value_text));
-            ELSE
-                SET col_names = CONCAT(col_names, ', `', key_name, '`');
-                SET col_values = CONCAT(col_values, ', ', QUOTE(value_text));
-            END IF;
+    -- Controlla se la tabella di esercizio esiste
+    SELECT COUNT(*)
+    INTO table_exists
+    FROM Tabella_Esercizio
+    WHERE Nome = nomeTabella;
 
-            -- Incrementa l'indice
-            SET idx = idx + 1;
-        END WHILE;
+    -- Se la tabella non esiste, solleva un errore
+    IF table_exists = 0 THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'La tabella di esercizio non esiste.';
+    END IF;
 
-    -- Costruisci la query di inserimento dinamicamente
-    SET @sql_query = CONCAT('INSERT INTO ', nomeTabella, ' (', col_names, ') VALUES (', col_values, ');');
+    -- Apri il cursore per iterare sugli attributi del JSON
+    OPEN cur;
 
-    -- Esegui la query di inserimento
+    read_loop: LOOP
+        FETCH cur INTO attr_name, value_text;
+
+        IF done THEN
+            LEAVE read_loop;
+        END IF;
+
+        -- Aggiungi ogni colonna e valore alla stringa
+        IF idx = 0 THEN
+            SET col_names = CONCAT('`', attr_name, '`');
+            SET col_values = CONCAT("'", value_text, "'");
+        ELSE
+            SET col_names = CONCAT(col_names, ', `', attr_name, '`');
+            SET col_values = CONCAT(col_values, ', ', "'", value_text, "'");
+        END IF;
+
+        SET idx = idx + 1;
+    END LOOP;
+
+    CLOSE cur;
+
+    -- Costruisci la query di inserimento
+    SET @sql_query = CONCAT('INSERT INTO `', nomeTabella, '` (', col_names, ') VALUES (', col_values, ');');
+
+    -- Debug: Stampa la query SQL generata
+    SELECT @sql_query AS QueryGenerata;
+
+    -- Esegui la query dinamica
     PREPARE stmt FROM @sql_query;
     EXECUTE stmt;
     DEALLOCATE PREPARE stmt;
 
     -- Inserisci il JSON come stringa nella tabella RIGA
     INSERT INTO RIGA (NomeTabella, Valori) VALUES (nomeTabella, inputRiga);
-    END IF;
-END//
+
+END //
 
 DELIMITER ;
-
-
-
-
-
-
-
-
 
 
 
