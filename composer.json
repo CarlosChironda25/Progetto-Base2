@@ -1,0 +1,8 @@
+{
+  "require": {
+    "mongodb/mongodb": "^1.8",
+    "ext-mysqli": "*",
+    "ext-mongodb": "*",
+    "ext-json": "*"
+  }
+}
