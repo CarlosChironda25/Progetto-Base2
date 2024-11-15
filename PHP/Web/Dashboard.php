@@ -17,7 +17,6 @@ $isDocente = ($_SESSION['tipoUtente'] === 'Docente');
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
-        /* Stili per migliorare la struttura e l’aspetto */
         body {
             display: flex;
             background-color: #f4f7fa;
@@ -87,6 +86,8 @@ $isDocente = ($_SESSION['tipoUtente'] === 'Docente');
 <div class="main-content">
     <h2 class="text-center mb-4">Dashboard</h2>
 
+
+
     <!-- Sezione Docente -->
     <?php if ($isDocente): ?>
         <div id="sezione-docente" class="card">
@@ -98,9 +99,12 @@ $isDocente = ($_SESSION['tipoUtente'] === 'Docente');
                     <li class="list-group-item"><a href="Docente/AggiungeQuesito.php"><i class="fas fa-question-circle"></i> Crea Quesito</a></li>
                     <li class="list-group-item"><a href="Docente/AbilitazioneRisposte.php"><i class="fas fa-eye-slash"></i> Abilita/Disabilita Visualizzazione</a></li>
                     <li class="list-group-item"><a href="Docente/OpzioneQuesito.php"><i class="fas fa-list-ul"></i> Aggiungere Opzioni al Quesito</a></li>
-                    <li class="list-group-item"><a href="Docente/aggiungi_riferimento.php"><i class="fas fa-link"></i> Aggiungi Riferimento Test</a></li>
+                    <li class="list-group-item"><a href="Docente/AggiungeSoluzione.php"><i class="fas fa-list-ul"></i> Aggiungere Soluzione al Quesito</a></li>
+
+                    <!-- <li class="list-group-item"><a href="Docente/aggiungi_riferimento.php"><i class="fas fa-link"></i> Aggiunge Riferimento Test</a></li>-->
+                    <li class="list-group-item"><a href="Docente/Inserisci_riga.html"><i class="fas fa-eye"></i> Aggiunge Riga </a></li>
                     <li class="list-group-item"><a href="Docente/InviaMessaggio.php"><i class="fas fa-envelope"></i> Gestione Messaggio</a></li>
-                    <li class="list-group-item"><a href="Docente/VisualizzaTabelle.php"><i class="fas fa-eye"></i> Visualizza Tabelle</a></li>
+
                 </ul>
             </div>
         </div>
@@ -113,22 +117,29 @@ $isDocente = ($_SESSION['tipoUtente'] === 'Docente');
                 <h5 class="card-title">Opzioni Studente</h5>
                 <ul class="list-group list-group-flush">
                     <li class="list-group-item"><a href="Studenti/VisualizzaQuesiti.php"><i class="fas fa-pencil-alt"></i> Inserisci Risposta</a></li>
-                    <li class="list-group-item"><a href="Studenti/VisualizzaEsito.php"><i class="fas fa-check-circle"></i> Visualizza Esito</a></li>
-                    <li class="list-group-item"><a href="Studenti/VisualizzaSoluzione.php"><i class="fas fa-check-circle"></i> Visualizza Soluzione</a></li>
+                    <li class="list-group-item"><a href="Studenti/VisualizzaEsitoChiuso.php"><i class="fas fa-check-circle"></i> Visualizza Esito</a></li>
+                    <li class="list-group-item"><a href="Studenti/EsitoCodice.php"><i class="fas fa-check-circle"></i> Visualizza Esito codice</a></li>
 
+                    <li class="list-group-item"><a href="Studenti/VisualizzaSoluzione.php"><i class="fas fa-check-circle"></i> Visualizza Soluzione</a></li>
                     <li class="list-group-item"><a href="Studenti/InviaMessaggio.php"><i class="fas fa-envelope"></i> Gestione Messaggio</a></li>
                 </ul>
             </div>
         </div>
     <?php endif; ?>
+    <!-- Opzioni Comuni -->
+    <div id="opzioni-comuni" class="card">
+        <div class="card-body">
+            <h5 class="card-title">Opzioni Comuni</h5>
+            <ul class="list-group list-group-flush">
+                <li class="list-group-item"><a href="Messaggio.php"><i class="fas fa-envelope"></i> Visualizza Messaggi</a></li>
+                <li class="list-group-item"><a href="VisualizzaTabella.html"><i class="fas fa-table"></i> Visualizza Tabelle</a></li>
+            </ul>
+        </div>
+    </div>
 
     <!-- Statistiche -->
     <div id="statistiche" class="card">
         <div class="card-body">
-            <ul>
-                <h5 class="card-title">Visualizza Messaggio</h5>
-            <li class="list-group-item"><a href="Messaggio.php"><i class="fas fa-envelope"></i> Visualizza Messaaggi</a></li>
-            </ul>
             <h5 class="card-title">Statistiche</h5>
             <ul class="list-group list-group-flush">
                 <li class="list-group-item"><a href="classifica_test_completati.php"><i class="fas fa-trophy"></i> Classifica Test Completati</a></li>

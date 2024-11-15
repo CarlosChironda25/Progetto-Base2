@@ -34,8 +34,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $logger->logEvent($_SESSION['user'], 'Quesito aggiunto con successo! ', ['mail_Utente' => $_SESSION['user'] ]);
 
         } else {
-            $message = "Errore: Test non trovato.";
-            $logger->logEvent($_SESSION['user'], 'Errore: Test non trovato! ', ['mail_Utente' => $_SESSION['user'] ]);
+            $message = "Errore: TestValutaRisposta.html non trovato.";
+            $logger->logEvent($_SESSION['user'], 'Errore: TestValutaRisposta.html non trovato! ', ['mail_Utente' => $_SESSION['user'] ]);
 
         }
     } else {

@@ -37,9 +37,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         // Controlla il valore di @result
         $output_result = $conn->query("SELECT @result AS result")->fetch_assoc();
 
-        $message = $output_result['result'] == 1 ? "Test creato con successo!" : "Errore: un test con lo stesso titolo esiste già.";
+        $message = $output_result['result'] == 1 ? "TestValutaRisposta.html creato con successo!" : "Errore: un test con lo stesso titolo esiste già.";
            if( $output_result['result'] == 1 ) {
-           $logger->logEvent($emailDocente, 'Test creato con successo da: ', ['mail_Utente' => $_SESSION['user'] ]);
+           $logger->logEvent($emailDocente, 'TestValutaRisposta.html creato con successo da: ', ['mail_Utente' => $_SESSION['user'] ]);
          } else
         $logger->logEvent($emailDocente, 'Errore: un test con lo stesso titolo esiste già, tentativo fatto da: ', ['mail_Utente' => $_SESSION['user'] ]);
 

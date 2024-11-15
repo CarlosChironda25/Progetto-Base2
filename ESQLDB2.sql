@@ -64,7 +64,7 @@ CREATE TABLE RIGA (
 );
 
 
--- Tabella Test
+-- Tabella TestValutaRisposta.html
 CREATE TABLE Test (
                       Titolo VARCHAR(255) PRIMARY KEY,
                       Foto MEDIUMBLOB,
@@ -146,7 +146,7 @@ CREATE TABLE RispostaChiusa (
                                 IdQuesito INT,
                                 TitoloTest VARCHAR(255),
                                 FOREIGN KEY (EmailStudente) REFERENCES Studente(Email) ON DELETE CASCADE,
-                                -- FOREIGN KEY (TitoloTest) REFERENCES Test(Titolo) ON DELETE CASCADE,
+                                -- FOREIGN KEY (TitoloTest) REFERENCES TestValutaRisposta.html(Titolo) ON DELETE CASCADE,
                                 FOREIGN KEY (NumeroOpzione, IdQuesito, TitoloTest) REFERENCES Opzione(Numerazione, IdQuesito, TitoloTest) ON DELETE CASCADE
 );
 
@@ -180,18 +180,6 @@ CREATE TABLE Destinatario (
                               FOREIGN KEY (TitoloTest) REFERENCES Test(Titolo) ON DELETE CASCADE
 );
 
--- Tabella Corrispondenza: associa risposte degli studenti con le soluzioni
--- CREATE TABLE Corrispondenza (
-                                -- IdRisposta INT,
-                                -- EmailStudente VARCHAR(255),
-                                -- IdSoluzione INT,
-                                -- PRIMARY KEY (IdRisposta, EmailStudente, IdSoluzione),
-                                -- FOREIGN KEY (IdRisposta) REFERENCES RispostaCodice(Id) ON DELETE CASCADE,
-                                -- FOREIGN KEY (EmailStudente) REFERENCES Studente(Email) ON DELETE CASCADE,
-                                -- FOREIGN KEY (IdSoluzione) REFERENCES Soluzione(Id) ON DELETE CASCADE
--- );
-
--- Tabella Completamento: monitora lo stato di completamento di un test
 CREATE TABLE Completamento (
                                TitoloTest VARCHAR(255),
                                EmailStudente  VARCHAR(255),
@@ -329,6 +317,8 @@ BEGIN
     END IF;
 END //
 
+
+
 DELIMITER ;
 DELIMITER //
 CREATE PROCEDURE CreaTest(
@@ -393,7 +383,7 @@ BEGIN
 
         SET result = 1;  -- Quesito aggiunto con successo
     ELSE
-        SET result = 0;  -- Test non trovato
+        SET result = 0;  -- TestValutaRisposta.html non trovato
     END IF;
 END //
 
@@ -446,91 +436,90 @@ END //
 
 DELIMITER ;
 
-DELIMITER //
-CREATE PROCEDURE CambiaVisualizzazioneRisposte(
-    IN titoloTest VARCHAR(255),
-    IN visualizza BOOLEAN
-)
-BEGIN
-    -- Aggiorna il campo VisualizzazioneRisposta nella tabella Test
-    UPDATE Test
-    SET VisualizzazioneRisposta = visualizza
-    WHERE Titolo = titoloTest;
+-- DELIMITER //
+-- CREATE PROCEDURE CambiaVisualizzazioneRisposte(
+   -- IN titoloTest VARCHAR(255),
+   -- IN visualizza BOOLEAN
+-- )
+-- BEGIN
+    -- Aggiorna il campo VisualizzazioneRisposta nella tabella TestValutaRisposta.html
+    -- UPDATE Test
+   --  SET VisualizzazioneRisposta = visualizza
+   --  WHERE Titolo = titoloTest;
 
     -- Verifica se l'aggiornamento è riuscito
-    IF ROW_COUNT() > 0 THEN
-        SELECT 'Operazione completata con successo.' AS Messaggio;
-    ELSE
-        SELECT 'Nessun test trovato con il titolo specificato.' AS Messaggio;
-    END IF;
-END //
+  --   IF ROW_COUNT() > 0 THEN
+       --  SELECT 'Operazione completata con successo.' AS Messaggio;
+   --  ELSE
+     --    SELECT 'Nessun test trovato con il titolo specificato.' AS Messaggio;
+    -- END IF;
+-- END //
 
-DELIMITER ;
+-- DELIMITER ;
 
 
 DELIMITER //
 
-CREATE PROCEDURE VisualizzaSoluzione(
-    IN TitoloTest VARCHAR(255),
-    OUT Titolo VARCHAR(255),
-    OUT DataTest TIMESTAMP,
-    OUT VisualizzazioneRisposta BOOLEAN,
-    OUT TestoOpzione TEXT,
-    OUT SoluzioneSketch TEXT
-)
-BEGIN
+-- CREATE PROCEDURE VisualizzaSoluzione(
+   -- IN TitoloTest VARCHAR(255),
+   -- OUT Titolo VARCHAR(255),
+    -- OUT DataTest TIMESTAMP,
+   -- OUT VisualizzazioneRisposta BOOLEAN,
+  --  OUT TestoOpzione TEXT,
+   -- OUT SoluzioneSketch TEXT
+-- )
+-- BEGIN
     -- Recupera le informazioni generali sul test e verifica se la visualizzazione delle risposte è abilitata
-    SELECT
-        t.Titolo,
-        t.Data,
-        t.VisualizzazioneRisposta
-    INTO
-        Titolo,
-        DataTest,
-        VisualizzazioneRisposta
-    FROM
-        Test t
-    WHERE
-        t.Titolo = TitoloTest;
+   -- SELECT
+      --  t.Titolo,
+      --  t.Data,
+      --  t.VisualizzazioneRisposta
+    -- INTO
+     --   Titolo,
+      --  DataTest,
+      --  VisualizzazioneRisposta
+   -- FROM
+      --  Test t
+    -- WHERE
+       -- t.Titolo = TitoloTest;
 
     -- Se la visualizzazione delle risposte è abilitata, continua con la selezione delle risposte
-    IF VisualizzazioneRisposta = 1 THEN
+   -- IF VisualizzazioneRisposta = 1 THEN
         -- Recupera il testo delle opzioni corrette per i quesiti chiusi
-        SELECT
-            GROUP_CONCAT(o.Testo SEPARATOR '\n')
-        INTO
-            TestoOpzione
-        FROM
-            Opzione o
-        WHERE
-            o.TitoloTest = TitoloTest
-          AND o.OpzioneCorretta = TRUE;
+      --  SELECT
+          --  GROUP_CONCAT(o.Testo SEPARATOR '\n')
+       -- INTO
+        --    TestoOpzione
+      --  FROM
+         --   Opzione o
+        -- WHERE
+       --     o.TitoloTest = TitoloTest
+         --  AND o.OpzioneCorretta = TRUE;
 
         -- Recupera gli sketch delle soluzioni per i quesiti aperti
-        SELECT
-            GROUP_CONCAT(s.Sketch SEPARATOR '\n')
-        INTO
-            SoluzioneSketch
-        FROM
-            Soluzione s
-        WHERE
-            s.TitoloTest = TitoloTest;
-    ELSE
+        -- SELECT
+     --  GROUP_CONCAT(s.Sketch SEPARATOR '\n')
+       -- INTO
+          --  SoluzioneSketch
+       -- FROM
+       --     Soluzione s
+        -- WHERE
+         --   s.TitoloTest = TitoloTest;
+    -- ELSE
         -- Se la visualizzazione delle risposte è disabilitata, restituisce NULL per le risposte
-        SET TestoOpzione = NULL;
-        SET SoluzioneSketch = NULL;
-    END IF;
-END //
+      --  SET TestoOpzione = NULL;
+      --  SET SoluzioneSketch = NULL;
+  --  END IF;
+-- END //
 
-DELIMITER ;
-
-
+-- DELIMITER ;
 
 
 
 
 
-DESCRIBE  RispostaCodice;
+
+
 DELIMITER //
 CREATE PROCEDURE InserisciRispostaCodice(
     IN emailStudente VARCHAR(255),
@@ -567,7 +556,7 @@ DELIMITER ;
 DESCRIBE RispostaCodice;
 
 
-    /* Stored Procedure per Visualizzare i Test Disponibili per un Utente */
+    /* Stored Procedure per Visualizzare i TestValutaRisposta.html Disponibili per un Utente */
 DELIMITER //
 
 CREATE PROCEDURE VisualizzaTestDisponibili()
@@ -744,164 +733,57 @@ END //
 
 DELIMITER ;
 
-
-
- drop procedure ValutaRisposta;
 DELIMITER //
-CREATE PROCEDURE ValutaRisposta(
-    IN emailStudente VARCHAR(255),
-    IN idQuesito INT,
-    IN titoloTest VARCHAR(255)
-)
+
+CREATE PROCEDURE CalcolaEsitiRisposte()
 BEGIN
-    DECLARE codiceCorretto TEXT;
-    DECLARE rispostaStudente TEXT;
+    -- Variabili per iterare sui risultati
+    DECLARE done INT DEFAULT FALSE;
+    DECLARE v_id INT;
+    DECLARE v_idQuesito INT;
+    DECLARE v_titoloTest VARCHAR(255);
+    DECLARE v_testoRisposta TEXT;
+    DECLARE v_sketch TEXT;
+    DECLARE v_esito BOOLEAN;
 
-    -- Ottieni la soluzione corretta (Sketch) e la risposta dello studente
-    SELECT s.Sketch, r.TestoRisposta
-    INTO codiceCorretto, rispostaStudente
-    FROM RispostaCodice r
-             JOIN Soluzione s ON r.IdQuesito = s.IdQuesito AND r.TitoloTest = s.TitoloTest
-    WHERE r.EmailStudente = emailStudente
-      AND r.IdQuesito = idQuesito
-      AND r.TitoloTest = titoloTest
-    LIMIT 1;
-
-
-    SELECT CONCAT('Risposta Studente: ', rispostaStudente) AS debugRispostaStudente,
-           CONCAT('Codice Corretto: ', codiceCorretto) AS debugCodiceCorretto;
-
-    -- Confronta la risposta con la soluzione
-    IF TRIM(LOWER(rispostaStudente)) = TRIM(LOWER(codiceCorretto)) THEN
-        UPDATE RispostaCodice
-        SET Esito = 1  -- Corretto
-        WHERE EmailStudente = emailStudente AND IdQuesito = idQuesito AND TitoloTest = titoloTest;
-    ELSE
-        UPDATE RispostaCodice
-        SET Esito = 0  -- Errato
-        WHERE EmailStudente = emailStudente AND IdQuesito = idQuesito AND TitoloTest = titoloTest;
-    END IF;
-
-END //
-
-
-
-DELIMITER ;
-DELIMITER //
-CREATE PROCEDURE CalcolaEsitoTestCodice(
-    IN emailStudente VARCHAR(255),
-    IN titoloTest VARCHAR(255)
-)
-BEGIN
-    SELECT
-        r.IdQuesito,
-        r.TestoRisposta AS CodiceInviato,
-        CASE
-            WHEN r.Esito = 1 THEN 'Corretto'
-            ELSE 'Errato'
-            END AS Esito,
-        s.Sketch AS CodiceCorretto,
-        s.NomeTabellaOutput AS NomeTabellaOutput
-
-    FROM RispostaCodice r
-             JOIN Soluzione s ON r.IdQuesito = s.IdQuesito
-        AND r.TitoloTest = s.TitoloTest
-    WHERE r.EmailStudente = emailStudente
-      AND r.TitoloTest = titoloTest;
-END //
-DELIMITER ;
-
-
-
-select @sql_query;
-select Nome
- from Tabella_Esercizio;
-drop procedure InserisciRigaTabellaEsercizio;
-DELIMITER //
-CALL InserisciRigaTabellaEsercizio('{"logger 2 ": "valore1", "Logger 1": "valore2"}', 'Prova logger');
-call InserisciRigaTabellaEsercizio('{"Nome": "carlos", "eta": "22"}','Persona');
-SELECT @sql_query;
-
-
-
-
-
-
-DELIMITER //
-
-CREATE PROCEDURE InserisciRigaTabellaEsercizio(
-    IN inputRiga JSON,
-    IN nomeTabella VARCHAR(100)
-)
-BEGIN
-    DECLARE col_names TEXT DEFAULT '';
-    DECLARE col_values TEXT DEFAULT '';
-    DECLARE attr_name VARCHAR(100);
-    DECLARE value_text VARCHAR(255);
-    DECLARE table_exists INT DEFAULT 0;
-    DECLARE idx INT DEFAULT 0;
-
-    -- Cursore per iterare sugli attributi JSON
-    DECLARE done INT DEFAULT 0;
+    -- Cursore per iterare su tutte le righe di RispostaCodice
     DECLARE cur CURSOR FOR
-        SELECT JSON_UNQUOTE(JSON_KEYS(inputRiga, idx)) AS attr_name,
-               JSON_UNQUOTE(JSON_EXTRACT(inputRiga, CONCAT('$."', JSON_UNQUOTE(JSON_KEYS(inputRiga, idx)), '"'))) AS value_text
-        FROM Tabella_Esercizio;
+        SELECT Id, IdQuesito, TitoloTest, TestoRisposta
+        FROM RispostaCodice;
 
-    DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = 1;
+    -- Gestore di uscita dal ciclo
+    DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = TRUE;
 
-    -- Rimuovi spazi extra nel nome della tabella
-    SET nomeTabella = TRIM(nomeTabella);
-
-    -- Controlla se la tabella di esercizio esiste
-    SELECT COUNT(*)
-    INTO table_exists
-    FROM Tabella_Esercizio
-    WHERE Nome = nomeTabella;
-
-    -- Se la tabella non esiste, solleva un errore
-    IF table_exists = 0 THEN
-        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'La tabella di esercizio non esiste.';
-    END IF;
-
-    -- Apri il cursore per iterare sugli attributi del JSON
+    -- Apriamo il cursore
     OPEN cur;
 
+    -- Loop per ciascuna risposta di RispostaCodice
     read_loop: LOOP
-        FETCH cur INTO attr_name, value_text;
+        -- Leggiamo i dati dal cursore
+        FETCH cur INTO v_id, v_idQuesito, v_titoloTest, v_testoRisposta;
 
+        -- Verifichiamo se abbiamo finito
         IF done THEN
             LEAVE read_loop;
         END IF;
 
-        -- Aggiungi ogni colonna e valore alla stringa
-        IF idx = 0 THEN
-            SET col_names = CONCAT('`', attr_name, '`');
-            SET col_values = CONCAT("'", value_text, "'");
-        ELSE
-            SET col_names = CONCAT(col_names, ', `', attr_name, '`');
-            SET col_values = CONCAT(col_values, ', ', "'", value_text, "'");
-        END IF;
+        -- Recuperiamo la soluzione corrispondente
+        SELECT Sketch INTO v_sketch
+        FROM Soluzione
+        WHERE IdQuesito = v_idQuesito AND TitoloTest = v_titoloTest
+        LIMIT 1;
 
-        SET idx = idx + 1;
+        -- Confrontiamo la risposta con la soluzione
+        SET v_esito = (v_testoRisposta = v_sketch);
+
+        -- Aggiorniamo l'esito nella tabella RispostaCodice
+        UPDATE RispostaCodice
+        SET Esito = v_esito
+        WHERE Id = v_id;
     END LOOP;
 
+    -- Chiudiamo il cursore
     CLOSE cur;
-
-    -- Costruisci la query di inserimento
-    SET @sql_query = CONCAT('INSERT INTO `', nomeTabella, '` (', col_names, ') VALUES (', col_values, ');');
-
-    -- Debug: Stampa la query SQL generata
-    SELECT @sql_query AS QueryGenerata;
-
-    -- Esegui la query dinamica
-    PREPARE stmt FROM @sql_query;
-    EXECUTE stmt;
-    DEALLOCATE PREPARE stmt;
-
-    -- Inserisci il JSON come stringa nella tabella RIGA
-    INSERT INTO RIGA (NomeTabella, Valori) VALUES (nomeTabella, inputRiga);
-
 END //
 
 DELIMITER ;
@@ -914,8 +796,8 @@ DELIMITER ;
 
 
 
-            -- ----------------------------------------------------------------- Trigger ------------------------------------------------------------------------------------------
--- Aggiorna la collona esito in base alla risposta inserita ----
+
+-- ----------------------------------------------------------------- Trigger ------------------------------------------------------------------------------------------
 DELIMITER //
 -- Trigger per inserimento su RispostaCodice
 CREATE TRIGGER Trigger_Completamento_InserisciCodice
@@ -1028,7 +910,7 @@ DELIMITER ;
 
 
 
--- trigger che mette come concluso tutti i testi che anno le risposte correte--
+-- trigger che mette come concluso tutti i testi che hanno le risposte correte--
 DELIMITER //
 
 CREATE TRIGGER Trigger_ConcludiTest
@@ -1075,7 +957,6 @@ BEGIN
 END //
 
 DELIMITER ;
-
 
 
 
@@ -1150,6 +1031,8 @@ BEGIN
 END //
 
 DELIMITER ;
+
+
 
 
 

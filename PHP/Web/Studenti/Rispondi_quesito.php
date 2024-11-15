@@ -14,12 +14,7 @@ if (!isset($_SESSION['user'])) {
     exit();
 }
 
-if (!isset($_SESSION['user']) ) {
-    header("Location: ../index.php");
-    $logger->logEvent($_SESSION['user'], 'Acesso non consetito a  : ', ['mail_Utente' => $_SESSION['user'] ]);
 
-    exit();
-}
 //$idQuesito = $_GET['idQuesito'];
 $titoloTest = trim($_GET['titoloTest']);
 $tipo = $_GET['tipo'];  // 'chiuso' o 'codice'
