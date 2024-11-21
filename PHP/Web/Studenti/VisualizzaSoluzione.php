@@ -1,22 +1,37 @@
 <?php
 // Avvio della sessione e configurazione
 global $conn;
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
 session_start();
 include '../../ESQLDB2.php'; // Connessione al database
 
+// Controlla se l'email è presente in sessione
+if (!isset($_SESSION['user'] ) || $_SESSION['tipoUtente'] != 'Studente') {
+    header("Location: ../index.php");
+    exit();
+}
+
+
+$emailSessione = $_SESSION['user'];
 // Esegui la procedura per calcolare gli esiti
 $queryCalcolaEsiti = "CALL CalcolaEsitiRisposte()";
 $conn->query($queryCalcolaEsiti);
 
-// Recupera i dati aggiornati da RispostaCodice, includendo la visibilità della risposta corretta
+// Query preparata per recuperare i dati aggiornati da RispostaCodice
 $queryVisualizzaEsiti = "
     SELECT r.IdQuesito, r.TitoloTest, r.TestoRisposta, r.Esito, 
            s.Sketch, t.VisualizzazioneRisposta, s.NomeTabellaOutput
     FROM RispostaCodice r
     JOIN Soluzione s ON r.IdQuesito = s.IdQuesito AND r.TitoloTest = s.TitoloTest
     JOIN Test t ON r.TitoloTest = t.Titolo
+    WHERE r.EmailStudente = ?;
 ";
-$result = $conn->query($queryVisualizzaEsiti);
+$stmt = $conn->prepare($queryVisualizzaEsiti);
+$stmt->bind_param("s", $emailSessione);
+$stmt->execute();
+$result = $stmt->get_result();
 ?>
 
 <!DOCTYPE html>
@@ -48,7 +63,19 @@ $result = $conn->query($queryVisualizzaEsiti);
         <tbody>
         <?php if ($result && $result->num_rows > 0): ?>
             <?php while ($row = $result->fetch_assoc()): ?>
-                <tr>
+                <style>
+                    .table-success {
+                        background-color: #d4edda !important;
+                        color: #155724 !important;
+                    }
+
+                    .table-danger {
+                        background-color: #f8d7da !important;
+                        color: #721c24 !important;
+                    }
+                </style>
+
+                <tr class="<?php echo $row['Esito'] ? 'table-success' : 'table-danger'; ?>">
                     <td><?php echo htmlspecialchars($row['IdQuesito']); ?></td>
                     <td><pre><?php echo htmlspecialchars($row['TestoRisposta']); ?></pre></td>
                     <td>
@@ -74,6 +101,7 @@ $result = $conn->query($queryVisualizzaEsiti);
 </html>
 
 <?php
-// Chiudi la connessione al database
+// Chiudi lo statement e la connessione al database
+$stmt->close();
 $conn->close();
 ?>

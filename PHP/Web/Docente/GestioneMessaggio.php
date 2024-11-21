@@ -6,11 +6,13 @@ ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 session_start();
 include '../../ESQLDB2.php';
-
+ require_once '../ControllerMongoDBLogger.php';
+ $logger = new ControllerMongoDBLogger();
 if (!isset($_SESSION['user']) || $_SESSION['tipoUtente'] != 'Docente') {
     header("Location: ../index.php");
     exit();
 }
+$logger->logEvent($_SESSION['user'], 'Accesso alla gestione messaggi',['fatto da'=>$_SESSION['user']]);
 ?>
 
 <!DOCTYPE html>

@@ -2,6 +2,9 @@
 <project version="4">
   <component name="SqlDialectMappings">
     <file url="file://$PROJECT_DIR$/ESQLDB2.sql" dialect="MariaDB" />
+    <file url="file://$PROJECT_DIR$/PHP/Web/Docente/get_tabelle.php" dialect="MariaDB" />
     <file url="file://$PROJECT_DIR$/PHP/Web/Docente/inserisci_riga.php" dialect="GenericSQL" />
+    <file url="file://$PROJECT_DIR$/PHP/Web/Studenti/EsitoCodice.php" dialect="MariaDB" />
+    <file url="file://$PROJECT_DIR$/PHP/Web/Studenti/Rispondi_quesito.php" dialect="MariaDB" />
   </component>
 </project>

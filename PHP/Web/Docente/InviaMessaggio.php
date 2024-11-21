@@ -4,14 +4,16 @@ session_start();
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
-//|| $_SESSION['role'] != 'Docente';
-if (!isset($_SESSION['user']) ) {
-    header("Location: ../index.php");
-    exit();
-}
 include '../../ESQLDB2.php';
 require_once '../ControllerMongoDBLogger.php';
 $logger = new ControllerMongoDBLogger();
+if (!isset($_SESSION['user'] ) || $_SESSION['tipoUtente'] != 'Docente') {
+    header("Location: ../index.php");
+    $logger->logEvent($_SESSION['user'], 'Acesso non consetito a  : ', ['mail_Utente' => $_SESSION['user'] ]);
+
+    exit();
+}
+
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $titolo = $_POST['titolo'];
     $titoloTest = $_POST['titoloTest'];

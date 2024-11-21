@@ -119,7 +119,7 @@ $isDocente = ($_SESSION['tipoUtente'] === 'Docente');
                     <li class="list-group-item"><a href="Studenti/VisualizzaQuesiti.php"><i class="fas fa-pencil-alt"></i> Inserisci Risposta</a></li>
                     <li class="list-group-item"><a href="Studenti/VisualizzaEsitoChiuso.php"><i class="fas fa-check-circle"></i> Visualizza Esito</a></li>
                     <li class="list-group-item"><a href="Studenti/EsitoCodice.php"><i class="fas fa-check-circle"></i> Visualizza Esito codice</a></li>
-
+                    <li class="list-group-item"><a href="Studenti/VisualizzaSoluzioneChiusa.php"><i class="fas fa-check-circle"></i> Visualizza Soluzione Chiusa</a></li>
                     <li class="list-group-item"><a href="Studenti/VisualizzaSoluzione.php"><i class="fas fa-check-circle"></i> Visualizza Soluzione</a></li>
                     <li class="list-group-item"><a href="Studenti/InviaMessaggio.php"><i class="fas fa-envelope"></i> Gestione Messaggio</a></li>
                 </ul>

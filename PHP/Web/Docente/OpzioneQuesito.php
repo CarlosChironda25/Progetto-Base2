@@ -8,10 +8,9 @@ session_start();
 include '../../ESQLDB2.php';
 require_once  '../ControllerMongoDBLogger.php';
 $logger = new ControllerMongoDBLogger();
-if (!isset($_SESSION['user']) ) {
-    header("Location: ../index.php");
+if (!isset($_SESSION['user'] ) || $_SESSION['tipoUtente'] != 'Docente') {
     $logger->logEvent($_SESSION['user'], 'Acesso non consetito a  : ', ['mail_Utente' => $_SESSION['user'] ]);
-
+    header("Location: ../index.php");
     exit();
 }
 $message = '';
@@ -92,7 +91,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             <label for="opzioneCorretta" class="form-check-label">È la risposta corretta?</label>
         </div>
         <button type="submit" class="btn btn-primary">Aggiungi Opzione</button>
-        <button type="submit" name="azione" value="crea_riferimento" class="btn btn-secondary">Crea soluzione codice</button>
+      <!--  <button type="submit" name="azione" value="crea_riferimento" class="btn btn-secondary">Crea soluzione codice</button>-->
 
     </form>
 </div>
@@ -100,9 +99,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
 <?php
 // Redireziona alla pagina di riferimento se si sceglie "Crea e Vai a Riferimento"
-if ($_SERVER["REQUEST_METHOD"] == "POST" && $_POST['azione'] == 'crea_riferimento') {
-    header("Location: AggiungeSoluzione.php");
-}
+//if ($_SERVER["REQUEST_METHOD"] == "POST" && $_POST['azione'] == 'crea_riferimento') {
+    //header("Location: AggiungeSoluzione.php");
+//}
 ?>
 </body>
 </html>

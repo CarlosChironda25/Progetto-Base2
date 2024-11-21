@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Seleziona Tabella di Esercizio</title>
+  <!-- Link a Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f8f9fa;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+    }
+    .container {
+      max-width: 500px;
+      background-color: #ffffff;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    .form-label {
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <br>
+  <div class="mb-3">
+    <a href="Dashboard.php" class="btn btn-secondary">
+      <i class="bi bi-arrow-left"></i> Indietro
+    </a>
+  </div>
+  <h1 class="text-center mb-4">Seleziona una Tabella di Esercizio</h1>
+
+  <!-- Form per inviare il nome della tabella -->
+  <form method="POST" action="visualizza_tabella.php">
+    <div class="mb-3">
+      <label for="nomeTabella" class="form-label">Nome della Tabella:</label>
+      <input type="text" id="nomeTabella" name="nomeTabella" class="form-control" placeholder="Inserisci il nome della tabella" required>
+    </div>
+    <button type="submit" class="btn btn-primary w-100">Visualizza Tabella</button>
+  </form>
+</div>
+
+<!-- Link a Bootstrap JS per funzionalità avanzate -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
+</body>
+</html>

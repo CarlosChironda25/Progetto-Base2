@@ -1,6 +1,6 @@
 <?php
 session_start();
-if (!isset($_SESSION['user'])) {
+if (!isset($_SESSION['user'] ) || $_SESSION['tipoUtente'] != 'Studente') {
     header("Location: ../index.php");
     exit();
 }
@@ -97,7 +97,6 @@ $quesiti['codice'] = eseguiProcedura($conn, "VisualizzaQuesitoCodice");
                                 echo "<a href=\"Rispondi_quesito.php?idQuesito=" . htmlspecialchars($tabella['Id']) . "&titoloTest=" . htmlspecialchars($tabella['TitoloTest']) . "&tipo=" . htmlspecialchars($tipo) . "\" class=\"btn btn-rispondi float-end\">Rispondi al Quesito</a>";
                                 ?>
                                   <?php   echo $tabella['Id']?>
-                                    Rispondi al Quesito
 
                                 </a>
                             </div>

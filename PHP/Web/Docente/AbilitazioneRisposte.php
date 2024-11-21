@@ -20,9 +20,15 @@ if (!isset($_SESSION['user'])|| $_SESSION['tipoUtente'] != 'Docente') {
 $message = '';
 
 // Recupera la lista dei test per il menu a discesa
+$emailDocente = $_SESSION['user'];
 global $conn;
 $testList = [];
-$result = $conn->query("SELECT Titolo FROM Test");
+// Filtra i test in base all'email del docente
+$stmt = $conn->prepare("SELECT Titolo FROM Test WHERE EmailDocente = ?");
+$stmt->bind_param("s", $emailDocente);
+$stmt->execute();
+$result = $stmt->get_result();
+
 while ($row = $result->fetch_assoc()) {
     $testList[] = $row['Titolo'];
 }

@@ -45,7 +45,6 @@ CREATE TABLE Attributi (
                            PRIMARY KEY (Nome, NomeTabella),
                            FOREIGN KEY (NomeTabella) REFERENCES Tabella_Esercizio(Nome) ON DELETE CASCADE
 );
-
 -- Tabella Integrità_Referenziale
 CREATE TABLE Integrita_Referenziale (
                                         Id INT AUTO_INCREMENT PRIMARY KEY,
@@ -62,8 +61,6 @@ CREATE TABLE RIGA (
                       PRIMARY KEY(NomeTabella, Valori(255)),
                       FOREIGN KEY (NomeTabella) REFERENCES Tabella_Esercizio(Nome) ON DELETE CASCADE
 );
-
-
 -- Tabella TestValutaRisposta.html
 CREATE TABLE Test (
                       Titolo VARCHAR(255) PRIMARY KEY,
@@ -107,7 +104,6 @@ CREATE TABLE Soluzione (
                            FOREIGN KEY (IdQuesito) REFERENCES Quesito(Id) ON DELETE CASCADE,
                            FOREIGN KEY (TitoloTest) REFERENCES Test(Titolo) ON DELETE CASCADE
 );
-
 -- Tabella Opzione
 CREATE TABLE Opzione (
                          Numerazione INT,
@@ -119,8 +115,6 @@ CREATE TABLE Opzione (
                          FOREIGN KEY (IdQuesito) REFERENCES Quesito(Id) ON DELETE CASCADE,
                          FOREIGN KEY (TitoloTest) REFERENCES Test(Titolo) ON DELETE CASCADE
 );
-
-
 -- Tabella RispostaCodice
 CREATE TABLE RispostaCodice (
                                 Id INT AUTO_INCREMENT PRIMARY KEY,
@@ -134,8 +128,6 @@ CREATE TABLE RispostaCodice (
                                 FOREIGN KEY (IdQuesito) REFERENCES Quesito(Id) ON DELETE CASCADE,
                                 FOREIGN KEY (TitoloTest) REFERENCES Test(Titolo) ON DELETE CASCADE
 );
-
-
 -- Tabella RispostaChiusa
 CREATE TABLE RispostaChiusa (
                                 Id INT AUTO_INCREMENT PRIMARY KEY,
@@ -317,13 +309,13 @@ BEGIN
     END IF;
 END //
 
-
+drop procedure CreaTest;
 
 DELIMITER ;
 DELIMITER //
 CREATE PROCEDURE CreaTest(
     IN titolo VARCHAR(255),
-    IN foto BLOB,
+    IN foto MEDIUMBLOB,
     IN emailDocente VARCHAR(255),
     OUT result INT
 )
@@ -435,89 +427,6 @@ BEGIN
 END //
 
 DELIMITER ;
-
--- DELIMITER //
--- CREATE PROCEDURE CambiaVisualizzazioneRisposte(
-   -- IN titoloTest VARCHAR(255),
-   -- IN visualizza BOOLEAN
--- )
--- BEGIN
-    -- Aggiorna il campo VisualizzazioneRisposta nella tabella TestValutaRisposta.html
-    -- UPDATE Test
-   --  SET VisualizzazioneRisposta = visualizza
-   --  WHERE Titolo = titoloTest;
-
-    -- Verifica se l'aggiornamento è riuscito
-  --   IF ROW_COUNT() > 0 THEN
-       --  SELECT 'Operazione completata con successo.' AS Messaggio;
-   --  ELSE
-     --    SELECT 'Nessun test trovato con il titolo specificato.' AS Messaggio;
-    -- END IF;
--- END //
-
--- DELIMITER ;
-
-
-DELIMITER //
-
--- CREATE PROCEDURE VisualizzaSoluzione(
-   -- IN TitoloTest VARCHAR(255),
-   -- OUT Titolo VARCHAR(255),
-    -- OUT DataTest TIMESTAMP,
-   -- OUT VisualizzazioneRisposta BOOLEAN,
-  --  OUT TestoOpzione TEXT,
-   -- OUT SoluzioneSketch TEXT
--- )
--- BEGIN
-    -- Recupera le informazioni generali sul test e verifica se la visualizzazione delle risposte è abilitata
-   -- SELECT
-      --  t.Titolo,
-      --  t.Data,
-      --  t.VisualizzazioneRisposta
-    -- INTO
-     --   Titolo,
-      --  DataTest,
-      --  VisualizzazioneRisposta
-   -- FROM
-      --  Test t
-    -- WHERE
-       -- t.Titolo = TitoloTest;
-
-    -- Se la visualizzazione delle risposte è abilitata, continua con la selezione delle risposte
-   -- IF VisualizzazioneRisposta = 1 THEN
-        -- Recupera il testo delle opzioni corrette per i quesiti chiusi
-      --  SELECT
-          --  GROUP_CONCAT(o.Testo SEPARATOR '\n')
-       -- INTO
-        --    TestoOpzione
-      --  FROM
-         --   Opzione o
-        -- WHERE
-       --     o.TitoloTest = TitoloTest
-         --  AND o.OpzioneCorretta = TRUE;
-
-        -- Recupera gli sketch delle soluzioni per i quesiti aperti
-        -- SELECT
-     --  GROUP_CONCAT(s.Sketch SEPARATOR '\n')
-       -- INTO
-          --  SoluzioneSketch
-       -- FROM
-       --     Soluzione s
-        -- WHERE
-         --   s.TitoloTest = TitoloTest;
-    -- ELSE
-        -- Se la visualizzazione delle risposte è disabilitata, restituisce NULL per le risposte
-      --  SET TestoOpzione = NULL;
-      --  SET SoluzioneSketch = NULL;
-  --  END IF;
--- END //
-
--- DELIMITER ;
-
-
-
-
-
 
 
 DELIMITER //
@@ -701,7 +610,7 @@ DELIMITER ;
 
 
   -- Procedure per la visualizzazione di tutte le tabelle
-DELIMITER //
+/*DELIMITER //
 CREATE PROCEDURE VisualizzaTabelle()
 BEGIN
     SELECT Nome, Data FROM Tabella_Esercizio;
@@ -732,6 +641,42 @@ BEGIN
 END //
 
 DELIMITER ;
+*/
+
+DELIMITER $$
+CREATE PROCEDURE CalcolaEsitoTest(
+    IN emailStudente VARCHAR(255),
+    IN titoloTest VARCHAR(255)
+)
+BEGIN
+    -- Aggiorna il campo Esito nella tabella RispostaChiusa
+    UPDATE RispostaChiusa r
+        JOIN Opzione o
+        ON r.NumeroOpzione = o.Numerazione
+            AND r.IdQuesito = o.IdQuesito
+            AND r.TitoloTest = o.TitoloTest
+    SET r.Esito = (o.OpzioneCorretta = 1)
+    WHERE r.EmailStudente = emailStudente
+      AND r.TitoloTest = titoloTest;
+
+    -- Se necessario, seleziona i risultati aggiornati per conferma
+    SELECT
+        r.IdQuesito,
+        r.NumeroOpzione AS OpzioneScelta,
+        o.OpzioneCorretta,
+        CASE WHEN o.OpzioneCorretta = 1 THEN 'Corretto' ELSE 'Errato' END AS Esito,
+        o.Testo AS TestoRisposta
+    FROM RispostaChiusa r
+             JOIN Opzione o ON r.NumeroOpzione = o.Numerazione
+        AND r.IdQuesito = o.IdQuesito
+        AND r.TitoloTest = o.TitoloTest
+    WHERE r.EmailStudente = emailStudente
+      AND r.TitoloTest = titoloTest;
+END$$
+
+DELIMITER ;
+
+
 
 DELIMITER //
 
@@ -995,18 +940,19 @@ ORDER BY NumeroTestCompletati DESC;
 
 
 -- Questa vista mostra la percentuale di risposte corrette inserite da ogni studente.
-CREATE VIEW Classifica_Risposte_Corrette AS
+    CREATE VIEW Classifica_Risposte_Corrette AS
 SELECT Codice,
-       (SUM(CASE WHEN Esito = TRUE THEN 1 ELSE 0 END) / COUNT(*)) * 100 AS PercentualeCorrette
-FROM (
-         SELECT Codice, Esito FROM RispostaChiusa, Studente
+     (SUM(IF(Esito = TRUE, 1, 0)) / COUNT(*)) * 100 AS PercentualeCorrette
+ FROM (
+        SELECT Codice, Esito FROM RispostaChiusa, Studente
                   where EmailStudente= Email
          UNION ALL
-         SELECT Codice, Esito FROM RispostaCodice,Studente
-                              where Email=EmailStudente
-     ) AS Risposte
-GROUP BY Codice
+        SELECT Codice, Esito FROM RispostaCodice,Studente
+                         where Email=EmailStudente
+   ) AS Risposte
+ GROUP BY Codice
 ORDER BY PercentualeCorrette DESC;
+
 
 -- Questa vista conta il numero di risposte fornite per ciascun quesito, indipendentemente dalla correttezza.
 
@@ -1031,7 +977,6 @@ BEGIN
 END //
 
 DELIMITER ;
-
 
 
 

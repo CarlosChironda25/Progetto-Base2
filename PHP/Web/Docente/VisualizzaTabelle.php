@@ -7,7 +7,7 @@ if (!isset($_SESSION['user'])) {
 include '../../ESQLDB2.php';
 require_once  '../ControllerMongoDBLogger.php';
 $logger = new ControllerMongoDBLogger();
-if (!isset($_SESSION['user']) ) {
+if (!isset($_SESSION['user'] ) || $_SESSION['tipoUtente'] != 'Docente') {
     header("Location: ../index.php");
     $logger->logEvent($_SESSION['user'], 'Acesso non consetito a  : ', ['mail_Utente' => $_SESSION['user'] ]);
 

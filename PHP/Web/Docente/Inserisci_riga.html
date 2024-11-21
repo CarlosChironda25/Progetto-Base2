@@ -1,0 +1,106 @@
+
+
+
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Inserimento Dati nella Tabella</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
+   <?php session_start(); ?>
+  <script>
+    // Funzione per caricare le tabelle disponibili dalla Tabella_Esercizio
+    function caricaTabelle() {
+      fetch("get_tabelle.php")
+              .then(response => response.json())
+              .then(data => {
+                console.log("Risposta ricevuta:", data); // Controlla il formato della risposta
+                const selectTabella = document.getElementById("nomeTabella");
+
+                // Aggiungi le opzioni nel menu a discesa
+                data.tabelle.forEach(tabella => {
+                  const option = document.createElement("option");
+                  option.value = tabella.Nome;
+                  option.innerText = tabella.Nome;
+                  selectTabella.appendChild(option);
+                });
+              })
+              //
+              .catch(error => console.log("Errore nella richiesta delle tabelle: ", error));
+    }
+
+    // Funzione per caricare gli attributi della tabella selezionata
+    function caricaAttributi() {
+      const nomeTabella = document.getElementById("nomeTabella").value;
+
+      // Fai una richiesta al server per ottenere gli attributi della tabella
+      fetch("get_attributi.php?nomeTabella=" + nomeTabella)
+              .then(response => response.json())
+              .then(data => {
+                const form = document.getElementById("formDati");
+                form.innerHTML = "";  // Pulisce i campi precedenti
+
+                if (data.success) {
+                  // Crea dinamicamente i campi per ogni attributo
+                  data.attributes.forEach(attribute => {
+                    const formGroup = document.createElement("div");
+                    formGroup.className = "mb-3";
+
+                    const label = document.createElement("label");
+                    label.innerHTML = attribute.Nome + ": ";
+                    label.className = "form-label";
+
+                    const input = document.createElement("input");
+                    input.type = "text";
+                    input.name = attribute.Nome;
+                    input.className = "form-control";
+                    input.placeholder = "Inserisci " + attribute.Nome;
+
+                    formGroup.appendChild(label);
+                    formGroup.appendChild(input);
+                    form.appendChild(formGroup);
+                  });
+                } else {
+                  alert("Errore nel caricare gli attributi per la tabella.");
+                }
+              })
+              .catch(error => console.log("Errore nella richiesta: ", error));
+    }
+
+    // Carica le tabelle all'avvio della pagina
+    window.onload = function() {
+      caricaTabelle();
+    };
+  </script>
+</head>
+<body>
+
+<div class="container mt-5">
+  <br>
+  <div class="mb-3">
+    <a href="../Dashboard.php" class="btn btn-secondary">
+      <i class="bi bi-arrow-left"></i> Indietro
+    </a>
+  </div>
+  <h1 class="text-center mb-4">Inserisci i Dati nella Tabella di Esercizio</h1>
+
+  <form action="inserisci_riga.php" method="POST" class="p-4 border rounded shadow-sm">
+    <div class="mb-3">
+      <label for="nomeTabella" class="form-label">Seleziona Tabella:</label>
+      <select id="nomeTabella" name="nomeTabella" class="form-select" onchange="caricaAttributi()" required>
+        <option value="">-- Seleziona Tabella --</option>
+        <!-- Le opzioni vengono caricate dinamicamente -->
+      </select>
+    </div>
+
+    <!-- I campi generati dinamicamente verranno inseriti qui -->
+    <div id="formDati"></div>
+
+    <button type="submit" class="btn btn-primary w-100 mt-3">Invia</button>
+  </form>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
+</body>
+</html>

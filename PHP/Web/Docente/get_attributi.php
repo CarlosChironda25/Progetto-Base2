@@ -2,6 +2,13 @@
 // Includi la connessione al database
 global $conn;
 require_once '../../ESQLDB2.php';
+session_start();
+
+if (!isset($_SESSION['user'] ) || $_SESSION['tipoUtente'] != 'Docente') {
+    header("Location: ../index.php");
+
+    exit();
+}
 
 // Ricevi il nome della tabella dalla query string
 $nomeTabella = $_GET['nomeTabella'];

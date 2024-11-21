@@ -7,7 +7,7 @@ session_start();
 require_once '../ControllerMongoDBLogger.php';
 $logger = new ControllerMongoDBLogger();
 
-if (!isset($_SESSION['user'])) {
+if (!isset($_SESSION['user'] ) || $_SESSION['tipoUtente'] != 'Docente') {
     header("Location: ../index.php");
     $logger->logEvent($_SESSION['user'], 'Acesso non consetito a  : ', ['mail_Utente' => $_SESSION['user'] ]);
 
@@ -29,17 +29,18 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $stmt->bind_param("ss", $titolo, $emailDocente);
     } else {
         $stmt = $conn->prepare("CALL CreaTest(?, ?, ?, @result)");
-        $stmt->bind_param("ssb", $titolo, $emailDocente, $foto);
+        $stmt->bind_param("sbs", $titolo, $foto,$emailDocente);
         $stmt->send_long_data(2, $foto);
+        //        VALUES (titolo, foto, CURRENT_TIMESTAMP, FALSE, emailDocente);
     }
 
     if ($stmt->execute()) {
         // Controlla il valore di @result
         $output_result = $conn->query("SELECT @result AS result")->fetch_assoc();
 
-        $message = $output_result['result'] == 1 ? "TestValutaRisposta.html creato con successo!" : "Errore: un test con lo stesso titolo esiste già.";
+        $message = $output_result['result'] == 1 ? "Test creato con successo!" : "Errore: un test con lo stesso titolo esiste già.";
            if( $output_result['result'] == 1 ) {
-           $logger->logEvent($emailDocente, 'TestValutaRisposta.html creato con successo da: ', ['mail_Utente' => $_SESSION['user'] ]);
+           $logger->logEvent($emailDocente, 'Test creato con successo da: ', ['mail_Utente' => $_SESSION['user'] ]);
          } else
         $logger->logEvent($emailDocente, 'Errore: un test con lo stesso titolo esiste già, tentativo fatto da: ', ['mail_Utente' => $_SESSION['user'] ]);
 

@@ -6,14 +6,22 @@ include '../../ESQLDB2.php';
 $message = '';
 require_once '../ControllerMongoDBLogger.php';
 $logger = new ControllerMongoDBLogger();
-if (!isset($_SESSION['user']) ) {
-    header("Location: ../index.php");
-    $logger->logEvent($_SESSION['user'], 'Acesso non consetito a  : ', ['mail_Utente' => $_SESSION['user'] ]);
 
+// Controllo autenticazione
+if (!isset($_SESSION['user']) || $_SESSION['tipoUtente'] != 'Docente') {
+    header("Location: ../index.php");
+    $logger->logEvent($_SESSION['user'], 'Accesso non consentito: tentativo di accedere alla gestione dei quesiti', ['mail_Utente' => $_SESSION['user']]);
     exit();
 }
-// Recupero dei titoli dei test disponibili per il dropdown
-$testOptions = $conn->query("SELECT Titolo FROM Test");
+
+$emailDocente = $_SESSION['user']; // Email del docente loggato
+
+// Recupero dei titoli dei test creati dal docente loggato
+$queryTestDocente = "SELECT Titolo FROM Test WHERE EmailDocente = ?";
+$stmtTest = $conn->prepare($queryTestDocente);
+$stmtTest->bind_param("s", $emailDocente);
+$stmtTest->execute();
+$testOptions = $stmtTest->get_result();
 
 // Aggiunta di un quesito tramite procedura
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
@@ -31,17 +39,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $result = $conn->query("SELECT @result AS result")->fetch_assoc();
         if ($result['result'] == 1) {
             $message = "Quesito aggiunto con successo!";
-            $logger->logEvent($_SESSION['user'], 'Quesito aggiunto con successo! ', ['mail_Utente' => $_SESSION['user'] ]);
-
+            $logger->logEvent($_SESSION['user'], 'Quesito aggiunto con successo', ['titolo_test' => $titoloTest]);
         } else {
-            $message = "Errore: TestValutaRisposta.html non trovato.";
-            $logger->logEvent($_SESSION['user'], 'Errore: TestValutaRisposta.html non trovato! ', ['mail_Utente' => $_SESSION['user'] ]);
-
+            $message = "Errore: Test non trovato.";
+            $logger->logEvent($_SESSION['user'], 'Errore: Test non trovato', ['titolo_test' => $titoloTest]);
         }
     } else {
         $message = "Errore nell'aggiunta del quesito: " . $stmt->error;
-        $logger->logEvent($_SESSION['user'], 'Errore nell\'aggiunta del quesito: ', ['mail_Utente' => $_SESSION['user'] ]);
-
+        $logger->logEvent($_SESSION['user'], 'Errore nell\'aggiunta del quesito', ['titolo_test' => $titoloTest]);
     }
 
     $stmt->close();
@@ -72,7 +77,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             <label for="titoloTest" class="form-label">Titolo Test</label>
             <select name="titoloTest" class="form-select" required>
                 <?php while ($row = $testOptions->fetch_assoc()): ?>
-                    <option value="<?php echo $row['Titolo']; ?>"><?php echo $row['Titolo']; ?></option>
+                    <option value="<?php echo htmlspecialchars($row['Titolo']); ?>"><?php echo htmlspecialchars($row['Titolo']); ?></option>
                 <?php endwhile; ?>
             </select>
         </div>

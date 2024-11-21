@@ -4,19 +4,17 @@ ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 session_start();
-if (!isset($_SESSION['user'])) {
-    header("Location: ../index.php");
-    exit();
-}
 require_once '../ControllerMongoDBLogger.php';
 $logger = new ControllerMongoDBLogger();
 include '../../ESQLDB2.php';
-if (!isset($_SESSION['user']) ) {
+if (!isset($_SESSION['user'] ) || $_SESSION['tipoUtente'] != 'Docente') {
     header("Location: ../index.php");
     $logger->logEvent($_SESSION['user'], 'Acesso non consetito a  : ', ['mail_Utente' => $_SESSION['user'] ]);
 
     exit();
 }
+
+
 
 $message = '';
 $attributi = [];
